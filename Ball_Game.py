@@ -71,7 +71,9 @@ balls.append({
 die_font = pygame.font.Font(None, 90)
 die_text = die_font.render("Game Over", True, (255, 0, 0))        
 
-
+# 무기 and 공 삭제
+weapon_to_remove = -1
+ball_to_remove = -1
 
 running = True
 while running:
@@ -148,20 +150,55 @@ while running:
         ball_rect.top = ball_y_pos
         ball_rect.left = ball_x_pos
 
-    if character_rect.colliderect(ball_rect):
-        running = False
-        screen.blit(die_text, (50, 50))
 
-    # 충돌처리 (공 and 무기)
-    for weapon_idx, weapon_val in enumerate(weapons):
-        weapon_x_pos = weapon_val[0]
-        weapon_y_pos = weapon_val[1]
-        weapon_rect = weapon.get_rect()
-        weapon_rect.top = weapon_y_pos
-        weapon_rect.left = weapon_x_pos
-        if weapon_rect.colliderect(ball_rect):
-            pass # 공이 쪼개짐
+        if character_rect.colliderect(ball_rect):
+            running = False
+            screen.blit(die_text, (50, 50))
 
+        # 충돌처리 (공 and 무기)
+        for weapon_idx, weapon_val in enumerate(weapons):
+            weapon_x_pos = weapon_val[0]
+            weapon_y_pos = weapon_val[1]
+            weapon_rect = weapon.get_rect()
+            weapon_rect.top = weapon_y_pos
+            weapon_rect.left = weapon_x_pos
+            if weapon_rect.colliderect(ball_rect):
+                weapon_to_remove = weapon_idx
+                ball_to_remove = ball_idx
+                
+                if ball_img_idx < 3:
+                    ball_size = ball_rect.size
+                    ball_width = ball_size[0]
+                    ball_height = ball_size[1]
+                    small_ball_rect = ball_images[ball_img_idx + 1].get_rect()
+
+                    small_ball_width = small_ball_rect.size[0]
+                    small_ball_height = small_ball_rect.size[1]
+
+                    balls.append({    
+                        "pos_x" : ball_x_pos + ball_width / 2 - small_ball_width / 2,
+                        "pos_y" : ball_y_pos + ball_height / 2 - small_ball_height / 2,
+                        "img_idx" : ball_img_idx + 1,
+                        "to_x": -3,
+                        "to_y": -10,
+                        "init_spd_y" : ball_speed_y[ball_img_idx + 1]})
+
+                    balls.append({    
+                        "pos_x" : ball_x_pos + ball_width / 2 - small_ball_width / 2,
+                        "pos_y" : ball_y_pos + ball_height / 2 - small_ball_height / 2,
+                        "img_idx" : ball_img_idx + 1,
+                        "to_x": 3,
+                        "to_y": -10,
+                        "init_spd_y" : ball_speed_y[ball_img_idx + 1]})
+                break
+
+    # 충돌된 공, 무기 삭제
+    if ball_to_remove >= 0:
+        del balls[ball_to_remove]
+        ball_to_remove = -1
+    if weapon_to_remove >= 0:
+        del weapons[weapon_to_remove] 
+        weapon_to_remove = -1
 
     # 그리기
     for i, j in weapons:
