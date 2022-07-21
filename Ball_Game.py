@@ -1,3 +1,5 @@
+from calendar import c
+from tkinter import CENTER
 import pygame
 
 pygame.init()
@@ -68,8 +70,10 @@ balls.append({
 })
 
 # 폰트
-die_font = pygame.font.Font(None, 90)
-die_text = die_font.render("Game Over", True, (255, 0, 0))        
+game_font = pygame.font.Font(None, 40)
+total_time = 20
+start_ticks = pygame.time.get_ticks()   
+result_msg = ""
 
 # 무기 and 공 삭제
 weapon_to_remove = -1
@@ -153,7 +157,8 @@ while running:
 
         if character_rect.colliderect(ball_rect):
             running = False
-            screen.blit(die_text, (50, 50))
+            result_msg = "Game Over"
+
 
         # 충돌처리 (공 and 무기)
         for weapon_idx, weapon_val in enumerate(weapons):
@@ -200,6 +205,12 @@ while running:
         del weapons[weapon_to_remove] 
         weapon_to_remove = -1
 
+    # 모든 공을 없앤 경우 엔딩
+    if len(balls) == 0:
+        result_msg = "Mission Complete !"
+        running = False
+
+
     # 그리기
     for i, j in weapons:
         screen.blit(weapon, (i, j))
@@ -208,7 +219,26 @@ while running:
     for idx, val in enumerate(balls):
         ball_image_idx = val["img_idx"]
         screen.blit(ball_images[ball_image_idx], (val["pos_x"], val["pos_y"]))
+
+
+    # 타이머
+    elapesd_time = (pygame.time.get_ticks() - start_ticks) / 1000
+    timer = game_font.render("Time : {}".format(str(int(total_time - elapesd_time))), True, (255, 255, 251))
+    screen.blit(timer, (10, 10))
+
+    # 시간 초과
+    if total_time - elapesd_time <= 0:
+        running = False
+        result_msg = "Time Over"
+
     pygame.display.update()
+
+
+msg = game_font.render(result_msg, True, (255, 255, 6))
+msg_rect = msg.get_rect(center = (int(screen_width / 2), int(screen_height / 2)))
+screen.blit(msg, msg_rect)
+
+pygame.display.update()
 
 pygame.time.delay(1500)
 
