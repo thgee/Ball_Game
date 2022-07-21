@@ -1,12 +1,14 @@
-from calendar import c
-from tkinter import CENTER
 import pygame
 
 pygame.init()
 
+# 배경
+background = pygame.image.load("Images\\background.png")
+
 # 스크린
-screen_width = 640
-screen_height = 480
+background_rect = background.get_rect().size
+screen_width = background_rect[0]
+screen_height = background_rect[1]
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 # 타이틀
@@ -15,10 +17,6 @@ pygame.display.set_caption("Ball Game")
 # FPS
 clock = pygame.time.Clock()
 
-
-
-# 배경
-background = pygame.image.load("Images\\background.png")
 
 # 스테이지
 stage = pygame.image.load("Images\\stage.png")
@@ -97,7 +95,7 @@ while running:
                 character_to_x = character_speed * dt
 
             if event.key == pygame.K_SPACE:
-                weapon_to_y = -0.4 * dt
+                weapon_to_y = -0.6 * dt
                 weapon_x_pos = character_x_pos + (character_width / 2) - (weapon_width / 2)                
                 weapon_y_pos = character_y_pos
                 weapons.append((weapon_x_pos, weapon_y_pos))
@@ -196,8 +194,10 @@ while running:
                         "to_y": -10,
                         "init_spd_y" : ball_speed_y[ball_img_idx + 1]})
                 break
-
-    # 충돌된 공, 무기 삭제
+        else:
+            continue
+        break
+    # 충돌된 공, 무기 삭제 
     if ball_to_remove >= 0:
         del balls[ball_to_remove]
         ball_to_remove = -1
